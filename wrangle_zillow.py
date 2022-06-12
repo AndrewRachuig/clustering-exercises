@@ -15,89 +15,92 @@ def get_zillow():
     if os.path.isfile(filename):
         return pd.read_csv(filename)
     else:
-        query = query = '''
-        SELECT 
-        `parcelid`,
-        `airconditioningtypeid`,
-        `architecturalstyletypeid`,
-        `basementsqft`,
-        `bathroomcnt`,
-        `bedroomcnt`,
-        `buildingclasstypeid`,
-        `buildingqualitytypeid`,
-        `calculatedbathnbr`,
-        `decktypeid`,
-        `finishedfloor1squarefeet`,
-        `calculatedfinishedsquarefeet`,
-        `finishedsquarefeet12`,
-        `finishedsquarefeet13`,
-        `finishedsquarefeet15`,
-        `finishedsquarefeet50`,
-        `finishedsquarefeet6`,
-        `fips`,
-        `fireplacecnt`,
-        `fullbathcnt`,
-        `garagecarcnt`,
-        `garagetotalsqft`,
-        `hashottuborspa`,
-        `heatingorsystemtypeid`,
-        `latitude`,
-        `longitude`,
-        `lotsizesquarefeet`,
-        `poolcnt`,
-        `poolsizesum`,
-        `pooltypeid10`,
-        `pooltypeid2`,
-        `pooltypeid7`,
-        `propertycountylandusecode`,
-        `propertylandusetypeid`,
-        `propertyzoningdesc`,
-        `rawcensustractandblock`,
-        `regionidcity`,
-        `regionidcounty`,
-        `regionidneighborhood`,
-        `regionidzip`,
-        `roomcnt`,
-        `storytypeid`,
-        `threequarterbathnbr`,
-        `typeconstructiontypeid`,
-        `unitcnt`,
-        `yardbuildingsqft17`,
-        `yardbuildingsqft26`,
-        `yearbuilt`,
-        `numberofstories`,
-        `fireplaceflag`,
-        `structuretaxvaluedollarcnt`,
-        `taxvaluedollarcnt`,
-        `assessmentyear`,
-        `landtaxvaluedollarcnt`,
-        `taxamount`,
-        `taxdelinquencyflag`,
-        `taxdelinquencyyear`,
-        `censustractandblock`,
-        `propertylandusedesc`,
-        `logerror`,
-        `transactiondate`
-        
-        FROM `properties_2017`
-        JOIN
-            propertylandusetype USING (propertylandusetypeid)
-        JOIN
-            predictions_2017 USING (parcelid)
-        Where
-            propertylandusedesc = 'Single Family Residential' AND 
-            transactiondate LIKE '2017-%%';   
+        query = '''
+            SELECT 
+                p.parcelid,
+                airconditioningtypeid,
+                architecturalstyletypeid,
+                basementsqft,
+                bathroomcnt,
+                bedroomcnt,
+                buildingclasstypeid,
+                buildingqualitytypeid,
+                calculatedbathnbr,
+                decktypeid,
+                finishedfloor1squarefeet,
+                calculatedfinishedsquarefeet,
+                finishedsquarefeet12,
+                finishedsquarefeet13,
+                finishedsquarefeet15,
+                finishedsquarefeet50,
+                finishedsquarefeet6,
+                fips,
+                fireplacecnt,
+                fullbathcnt,
+                garagecarcnt,
+                garagetotalsqft,
+                hashottuborspa,
+                heatingorsystemtypeid,
+                latitude,
+                longitude,
+                lotsizesquarefeet,
+                poolcnt,
+                poolsizesum,
+                pooltypeid10,
+                pooltypeid2,
+                pooltypeid7,
+                propertycountylandusecode,
+                propertylandusetypeid,
+                propertyzoningdesc,
+                rawcensustractandblock,
+                regionidcity,
+                regionidcounty,
+                regionidneighborhood,
+                regionidzip,
+                roomcnt,
+                storytypeid,
+                threequarterbathnbr,
+                typeconstructiontypeid,
+                unitcnt,
+                yardbuildingsqft17,
+                yardbuildingsqft26,
+                yearbuilt,
+                numberofstories,
+                fireplaceflag,
+                structuretaxvaluedollarcnt,
+                taxvaluedollarcnt,
+                assessmentyear,
+                landtaxvaluedollarcnt,
+                taxamount,
+                taxdelinquencyflag,
+                taxdelinquencyyear,
+                censustractandblock,
+                propertylandusedesc,
+                logerror,
+                p.transactiondate
+            FROM
+                (SELECT predictions_2017.parcelid, 
+                        MAX(transactiondate) AS max_date
+                FROM predictions_2017
+                GROUP
+                BY parcelid) AS m
+            JOIN predictions_2017 as p
+                ON p.parcelid = m.parcelid
+                AND p.transactiondate = m.max_date
+            JOIN
+                properties_2017 ON properties_2017.parcelid = p.parcelid
+            JOIN
+                propertylandusetype USING (propertylandusetypeid)
+            Where
+                propertylandusedesc = 'Single Family Residential' AND 
+                transactiondate LIKE '2017-%%'
+            ;   
         '''
         url = env.get_db_url('zillow')
         df = pd.read_sql(query, url)
         df.to_csv(filename, index = False)
 
         return df 
-
-
-
-
-
 
 
 def obs_attr(df):
