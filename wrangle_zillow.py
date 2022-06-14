@@ -114,7 +114,7 @@ def obs_attr(df):
     new_info = {'column_name':column_name, 'num_rows_missing': num_rows_missing, 'pct_rows_missing': pct_rows_missing}
     return pd.DataFrame(new_info, index=None)
 
-def drop_undesired(df, prop_required_column = .9, prop_required_row = .9):
+def drop_undesired(df, prop_required_column = .95, prop_required_row = .95):
     ''' This function takes in a dataframe and drops columns based on whether it meets the threshold for having values
     in rows and not null values. It then drops any rows based on whether it meets the threshold for having enough
     values in the row.
