@@ -11,7 +11,7 @@ def get_mall():
     FROM customers;
     '''
     url = env.get_db_url('mall_customers')
-    df = pd.read_sql(query, url)
+    df = pd.read_sql(query, url, index_col = 'customer_id')
     return df
 
 def wrangle(df):
